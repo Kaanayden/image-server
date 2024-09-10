@@ -12,12 +12,16 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get('/', (req, res) => {
+const defaultRouter = express.Router();
+
+defaultRouter.get('/', (req, res) => {
   res.send('This is image server!')
 })
 
-app.use('/public', express.static('public'))
-app.use('/storage', storageRouter)
+defaultRouter.use('/public', express.static('public'))
+defaultRouter.use('/storage', storageRouter)
+
+app.use('/image-server', defaultRouter);
   
 app.listen(port, () => {
   console.log(`Image server listening on port ${port}`)
