@@ -11,7 +11,10 @@ const { v4: uuidv4 } = require('uuid');
 //Authentication token middleware
 router.use('/', (req, res, next) => {
 
-    if (req.headers["authentication"] === process.env.AUTHENTICATION_TOKEN) next();
+    if (req.headers["authentication"] === process.env.AUTHENTICATION_TOKEN) {
+        req.publicUrl = `${req.protocol}://${req.get('host')}` + req.originalUrl.substring(0, req.originalUrl.lastIndexOf('/storage')) + '/public';
+        next()
+    }
     else res.status(401).json({
         message: "Wrong authentication token!",
         status: "Error!"
@@ -22,7 +25,6 @@ router.use('/', (req, res, next) => {
 //image and filename in request
 router.put('/uploadOne', upload.single('image'), (req, res) => {
     const isRandomName = req.body.isRandomName;
-    const fullUrl = `${req.protocol}://${req.get('host')}`;
     try {
         if (!fs.existsSync("public/")){
             fs.mkdirSync("public/");
@@ -47,7 +49,7 @@ router.put('/uploadOne', upload.single('image'), (req, res) => {
         res.status(200).json({
             status: "Success!",
             filename: filename,
-            url: `${fullUrl}/public/${filename}`
+            url: `${req.publicUrl}/${filename}`
         })
     } catch (e) {
         res.status(500).json({
@@ -59,7 +61,7 @@ router.put('/uploadOne', upload.single('image'), (req, res) => {
 
 router.put('/uploadBatch', upload.array('images'), (req, res) => {
     const isRandomName = req.body.isRandomName;
-    const fullUrl = `${req.protocol}://${req.get('host')}`;
+    const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`
     try {
         if (!fs.existsSync("public/")){
             fs.mkdirSync("public/");
@@ -78,7 +80,7 @@ router.put('/uploadBatch', upload.array('images'), (req, res) => {
                 fs.writeFileSync(`public/${filename}`, file.buffer);
                 // file written successfully
                 filenames.push(filename);
-                urls.push(`${fullUrl}/public/${filename}`);
+                urls.push(`${req.publicUrl}/${filename}`);
             } catch (err) {
                 console.error(err);
             }
