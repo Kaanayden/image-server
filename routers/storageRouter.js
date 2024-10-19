@@ -80,7 +80,8 @@ router.put('/uploadBatch', upload.array('images'), (req, res) => {
                 fs.writeFileSync(`public/${filename}`, file.buffer);
                 // file written successfully
                 filenames.push(filename);
-                urls.push(`${req.publicUrl}/${filename}`);
+                const url = `${req.publicUrl}/${filename}`;
+                urls.push( process.env.SSL == true ? url.replace('http', 'https') : url );
             } catch (err) {
                 console.error(err);
             }
