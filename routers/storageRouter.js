@@ -81,7 +81,7 @@ router.put('/uploadBatch', upload.array('images'), (req, res) => {
                 // file written successfully
                 filenames.push(filename);
                 const url = `${req.publicUrl}/${filename}`;
-                urls.push( process.env.SSL == true ? url.replace('http', 'https') : url );
+                urls.push( process.env.SSL ? url.replace('http', 'https') : url );
             } catch (err) {
                 console.error(err);
             }
